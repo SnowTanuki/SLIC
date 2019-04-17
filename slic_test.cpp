@@ -1,51 +1,94 @@
 #include <opencv2/opencv.hpp>
-#include <opencv2/ximgproc.hpp>
 #include <iostream>
+#include <vector>
 #include <chrono>
 
-#include "../common/debug.hpp"
 #include "slic.hpp"
 
-void bench_OpenCV(const cv::Mat& image, int size = 30, float m = 20.0f, int iteration = 10)
-{
-    auto slic = cv::ximgproc::createSuperpixelSLIC(image, cv::ximgproc::SLIC, size, m);
+static cv::Mat1b createContourMask(const cv::Mat& labels) {
 
-    double time = 0;
-    for (int i = 0; i <= iteration; i++) {
-        const auto t1 = std::chrono::system_clock::now();
-        slic->iterate(10);
-        const auto t2 = std::chrono::system_clock::now();
-        const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-        if (i > 0)
-            time += duration;
-    }
-    
-    std::printf("OpenCV\n");
-    std::printf("size: %d x %d\n", image.rows, image.cols);
-    std::printf("elapsed: %.1f[msec]\n", time / iteration);
+    CV_Assert(labels.type() == CV_32S);
 
-    cv::Mat label, label_color, label_contour;
-    slic->getLabels(label);
+    const int rows = labels.rows;
+    const int cols = labels.cols;
+    cv::Mat dst(rows, cols, CV_8U, cv::Scalar::all(0));
 
-    drawLabelColor(label, label_color);
-    drawLabelContour(image, label, label_contour);
+    dst.forEach<uchar>([&](uchar& v, const int* p) {
+        const int x = p[1];
+        const int y = p[0];
 
-    //cv::imshow("OpenCV label", label_color);
-    cv::imshow("OpenCV contour", label_contour);
-    cv::waitKey(1);
+        const int c = labels.ptr<int>(y)[x];
+        const int r = x + 1 < cols ? labels.ptr<int>(y)[x + 1] : -1;
+        const int d = y + 1 < rows ? labels.ptr<int>(y + 1)[x] : -1;
+
+        if (r >= 0 && c != r) v = 255u;
+        if (d >= 0 && c != d) v = 255u;
+    });
+
+    return dst;
 }
 
-void bench_CPU(const cv::Mat& image, int size = 30, float m = 20.0f, int iteration = 10)
-{
+static cv::Mat3b createSuperpixelImage(const cv::Mat& image, const cv::Mat& labels) {
+
+    CV_Assert(image.type() == CV_8UC3);
+    CV_Assert(labels.type() == CV_32S);
+    CV_Assert(image.size() == labels.size());
+
+    const int rows = image.rows;
+    const int cols = image.cols;
+    cv::Mat dst(rows, cols, CV_8UC3);
+
+    double maxLabel;
+    cv::minMaxLoc(labels, NULL, &maxLabel);
+
+    std::vector<cv::Vec3i> colors(static_cast<int>(maxLabel) + 1);
+    std::vector<int> sizes(static_cast<int>(maxLabel) + 1, 0);
+
+    for (int y = 0; y != rows; ++y) {
+
+        const int* _label = labels.ptr<int>(y);
+        const cv::Vec3b* _image = image.ptr<cv::Vec3b>(y);
+
+        for (int x = 0; x != cols; ++x) {
+            colors[_label[x]] += _image[x];
+            sizes[_label[x]]++;
+        }
+    }
+
+    for (int i = 0; i != colors.size(); ++i)
+        colors[i] /= sizes[i];
+
+    dst.forEach<cv::Vec3b>([&](cv::Vec3b& v, const int* p) {
+        v = colors[labels.ptr<int>(p[0])[p[1]]];
+    });
+
+    return dst;
+}
+
+int main(int argc, char** argv) {
+
+    if (argc < 2) {
+        exit(EXIT_FAILURE);
+    }
+
+    cv::Mat image = cv::imread(argv[1]);
+
+    const int superpixel_size = 30;
+    const int iterate = 10;
+    const float m = 20.f;
+
+    // set SLIC parameters
     superpixel::SLIC::Parameters param;
-    param.superpixel_size = size;
+    param.superpixel_size = superpixel_size;
     param.iterate = 10;
     param.color_scale = m;
+    // create SLIC
     superpixel::SLIC slic(param);
-    
+
     double time = 0;
-    for (int i = 0; i <= iteration; i++) {
+    for (int i = 0; i <= 100; i++) {
         const auto t1 = std::chrono::system_clock::now();
+        // compute SLIC
         slic.apply(image);
         const auto t2 = std::chrono::system_clock::now();
         const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
@@ -53,39 +96,18 @@ void bench_CPU(const cv::Mat& image, int size = 30, float m = 20.0f, int iterati
             time += duration;
     }
 
-    std::printf("CPU\n");
     std::printf("size: %d x %d\n", image.rows, image.cols);
-    std::printf("elapsed: %.1f[msec]\n", time / iteration);
+    std::printf("elapsed: %.1f[msec]\n", time / 100);
 
-    cv::Mat label, label_color, label_contour;
-    slic.getLabels(label);
+    cv::Mat labels;
+    slic.getLabels(labels);
 
-    drawLabelColor(label, label_color);
-    drawLabelContour(image, label, label_contour);
+    cv::imshow("Superpixel image", createSuperpixelImage(image, labels));
 
-    //cv::imshow("CPU label", label_color);
-    cv::imshow("CPU contour", label_contour);
-    cv::imwrite("SLIC_label_contour.png", label_contour);
-    cv::waitKey(1);
-}
-
-int main(int argc, char** argv)
-{
-    if (argc < 2) {
-        exit(EXIT_FAILURE);
-    }
-
-    cv::Mat image = cv::imread(argv[1]);
-
-    float m = 20.0f;
-    int size = 30;
-
-    bench_OpenCV(image, size, m, 10);
-    bench_CPU(image, size, m, 10);
+    image.setTo(cv::Scalar(0, 0, 255), createContourMask(labels));
+    cv::imshow("Superpixel contour", image);
 
     cv::waitKey(0);
 
     return 0;
 }
-
-
