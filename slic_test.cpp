@@ -56,7 +56,8 @@ static cv::Mat3b createSuperpixelImage(const cv::Mat& image, const cv::Mat& labe
     }
 
     for (int i = 0; i != colors.size(); ++i)
-        colors[i] /= sizes[i];
+        if (sizes[i] != 0)
+            colors[i] /= sizes[i];
 
     dst.forEach<cv::Vec3b>([&](cv::Vec3b& v, const int* p) {
         v = colors[labels.ptr<int>(p[0])[p[1]]];
@@ -67,7 +68,8 @@ static cv::Mat3b createSuperpixelImage(const cv::Mat& image, const cv::Mat& labe
 
 int main(int argc, char** argv) {
 
-    if (argc < 2) {
+    if (argc != 2) {
+        std::cout << "Usage: ./slic.exe [image]" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -102,11 +104,9 @@ int main(int argc, char** argv) {
     cv::Mat labels;
     slic.getLabels(labels);
 
-    cv::imshow("Superpixel image", createSuperpixelImage(image, labels));
-
+    //cv::imshow("Superpixel image", createSuperpixelImage(image, labels));
     image.setTo(cv::Scalar(0, 0, 255), createContourMask(labels));
     cv::imshow("Superpixel contour", image);
-
     cv::waitKey(0);
 
     return 0;
