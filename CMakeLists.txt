@@ -6,9 +6,6 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "-O3 -Wall")
 endif()
 
-# OpenMP
-find_package(OpenMP REQUIRED)
-
 # OpenCV
 find_package(OpenCV REQUIRED)
 if (OpenCV_VERSION VERSION_LESS 3.0)
