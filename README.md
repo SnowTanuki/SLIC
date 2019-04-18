@@ -21,6 +21,7 @@ for example
 ```
 ./slic_test.exe ../example/vegetables.png
 ```
+![SLIC result](https://github.com/SnowTanuki/SLIC/blob/master/example/result.png)
 
 ### Reference
 1. R. Achanta, A. Shaji, K. Smith, A. Lucchi, P. Fua, and S. Süsstrunk, "SLIC Superpixels", EPFL Technical Report no. 149300, June 2010.
