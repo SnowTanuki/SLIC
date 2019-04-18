@@ -9,6 +9,7 @@ CMake 3.1 or later
 Clone this repository and move to directory "SLIC".
 ```
 mkdir build
+cd build
 cmake ../
 make
 ```
@@ -18,7 +19,7 @@ and execute with below statement
 ```
 for example
 ```
-./slic_test.exe vegetables.png
+./slic_test.exe ../example/vegetables.png
 ```
 
 ### Reference
