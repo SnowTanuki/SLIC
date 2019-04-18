@@ -69,9 +69,7 @@ inline void SLIC::init(const cv::Mat& image) {
     num_superpixels_ = 0;
 
     for (int y = ofs; y < rows_; y += init_size) {
-
         const cv::Vec3b* _lab = lab_.ptr<cv::Vec3b>(y);
-
         for (int x = ofs; x < cols_; x += init_size) {
             centers_.push_back(ClusterCenter(x, y, _lab[x]));
             num_superpixels_++;
@@ -79,36 +77,30 @@ inline void SLIC::init(const cv::Mat& image) {
     }
 
     centers_tmp_ = std::vector<ClusterCenter>(num_superpixels_);
-    centers_distance_ = std::vector<int>(num_superpixels_);
-
     S_ = (int)std::ceilf(std::sqrtf(rows_ * cols_ / (float)num_superpixels_));
-
-    color_scale_norm_ = 1.0f / (param_.color_scale * param_.color_scale);
     S_norm_ = 1.0f / (S_ * S_);
+    color_scale_norm_ = 1.0f / (param_.color_scale * param_.color_scale);
 
+    // reset centers on minimum gradient position
     cv::Mat gradient_image_;
     cv::Laplacian(lab_, gradient_image_, CV_32F, 1);
 
     for (auto& center : centers_) {
-
         const int x = center.x;
         const int y = center.y;
-
-        cv::Vec3f _center_grad = gradient_image_.ptr<cv::Vec3f>(y)[x];
-        float min_grad = _center_grad[0] + _center_grad[1] + _center_grad[2];
         int min_grad_x = x;
         int min_grad_y = y;
+        cv::Vec3f _center_grad = gradient_image_.ptr<cv::Vec3f>(y)[x];
+        float min_grad = _center_grad[0] + _center_grad[1] + _center_grad[2];
 
         const int xs = std::max(x - 1, 0);
         const int xe = std::min(x + 2, cols_);
         const int ys = std::max(y - 1, 0);
         const int ye = std::min(y + 2, rows_);
 
-        for (int yj = ys; yj != ye; yj++) {
-
+        for (int yj = ys; yj != ye; ++yj) {
             const cv::Vec3f* _grad_img = gradient_image_.ptr<cv::Vec3f>(yj);
-
-            for (int xi = xs; xi != xe; xi++) {
+            for (int xi = xs; xi != xe; ++xi) {
 
                 const float grad = _grad_img[xi][0] + _grad_img[xi][1] + _grad_img[xi][2];
 
@@ -127,7 +119,6 @@ inline void SLIC::init(const cv::Mat& image) {
 inline float SLIC::getDistance(ClusterCenter& center, int x, int y) const {
 
     const cv::Vec3b p_color = lab_.ptr<cv::Vec3b>(y)[x];
-
     const int ldiff = center.l - p_color[0];
     const int adiff = center.a - p_color[1];
     const int bdiff = center.b - p_color[2];
@@ -139,13 +130,11 @@ inline float SLIC::getDistance(ClusterCenter& center, int x, int y) const {
 
 inline void SLIC::updateCenters() {
 
-    for_each(centers_distance_.begin(), centers_distance_.end(), [](int& d) { d = INT_MAX; });
+    std::vector<int> min_dist(num_superpixels_, INT_MAX);
 
     for (int y = 0; y != rows_; ++y) {
-
         const int* _label = labels_.ptr<int>(y);
         const cv::Vec3b* _lab = lab_.ptr<cv::Vec3b>(y);
-
         for (int x = 0; x != cols_; ++x) {
 
             const int l = _label[x];
@@ -154,8 +143,8 @@ inline void SLIC::updateCenters() {
             const int bdiff = centers_tmp_[l].b - _lab[x][2];
             const int dist = ldiff * ldiff + adiff * adiff + bdiff * bdiff;
 
-            if (centers_distance_[l] > dist) {
-                centers_distance_[l] = dist;
+            if (min_dist[l] > dist) {
+                min_dist[l] = dist;
                 centers_[l].set(x, y, _lab[x]);
             }
         }
@@ -163,9 +152,7 @@ inline void SLIC::updateCenters() {
 }
 
 inline int SLIC::iterate() {
-
     int num_updated = 0;
-
     for (int center_num = 0; center_num != num_superpixels_; ++center_num) {
 
         ClusterCenter center = centers_[center_num];
@@ -209,7 +196,6 @@ inline int SLIC::iterate() {
 }
 
 void SLIC::apply(const cv::Mat& image) {
-
     CV_Assert(image.type() == CV_8UC3);
     init(image);
 

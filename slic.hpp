@@ -41,7 +41,6 @@ private:
     cv::Mat_<float> distance_;
     std::vector<ClusterCenter> centers_;
     std::vector<ClusterCenter> centers_tmp_;
-    std::vector<int> centers_distance_;
 
     const Parameters param_;
 
