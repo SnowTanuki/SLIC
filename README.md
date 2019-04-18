@@ -19,7 +19,7 @@ and execute with below statement
 ```
 for example
 ```
-./slic_test.exe ../example/vegetables.png
+./slic_test.exe ../example/smoothie.png
 ```
 ![SLIC result](https://github.com/SnowTanuki/SLIC/blob/master/example/result.png)
 
