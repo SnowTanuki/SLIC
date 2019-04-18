@@ -2,13 +2,12 @@
 #include <cmath>
 #include <climits>
 
-namespace superpixel {
-
 /****************/
 /** Paremeters **/
 /****************/
 SLIC::Parameters::Parameters(int superpixel_size, int iterate, float color_scale) 
-: superpixel_size(superpixel_size), iterate(iterate), color_scale(color_scale) {
+: superpixel_size(superpixel_size), iterate(iterate), color_scale(color_scale)
+{
     if (this->superpixel_size <= 0) this->superpixel_size = 30;
     if (this->iterate <= 0) this->iterate = 10;
     if (this->color_scale <= 0) this->color_scale = 20.0f;
@@ -21,38 +20,44 @@ SLIC::ClusterCenter::ClusterCenter() : x(0), y(0), l(0), a(0), b(0) {}
 SLIC::ClusterCenter::ClusterCenter(int _x, int _y, cv::Vec3b _lab) : x(_x), y(_y), l(_lab[0]), a(_lab[1]), b(_lab[2]) {}
 SLIC::ClusterCenter::ClusterCenter(int _x, int _y, uchar _l, uchar _a, uchar _b) : x(_x), y(_y), l(_l), a(_a), b(_b) {}
 
-SLIC::ClusterCenter SLIC::ClusterCenter::operator / (int n) const {
+SLIC::ClusterCenter SLIC::ClusterCenter::operator / (int n) const
+{
     return ClusterCenter(this->x / n, this->y / n, this->l / n, this->a / n, this->b / n);
 }
 
-SLIC::ClusterCenter& SLIC::ClusterCenter::operator = (const ClusterCenter& obj) {
+SLIC::ClusterCenter& SLIC::ClusterCenter::operator = (const ClusterCenter& obj)
+{
     this->x = obj.x, this->y = obj.y, this->l = obj.l, this->a = obj.a, this->b = obj.b;
     return *this;
 }
 
-SLIC::ClusterCenter& SLIC::ClusterCenter::operator += (const ClusterCenter& obj) {
+SLIC::ClusterCenter& SLIC::ClusterCenter::operator += (const ClusterCenter& obj)
+{
     this->x += obj.x, this->y += obj.y, this->l += obj.l, this->a += obj.a, this->b += obj.b;
     return *this;
 }
 
-inline void SLIC::ClusterCenter::set(int _x, int _y, cv::Vec3b _lab) {
+inline void SLIC::ClusterCenter::set(int _x, int _y, cv::Vec3b _lab)
+{
     this->x = _x, this->y = _y, this->l = _lab[0], this->a = _lab[1], this->b = _lab[2];
 }
 
 /**********/
 /** SLIC **/
 /**********/
-SLIC::SLIC(const Parameters& param) : param_(param) {}
+SLIC::SLIC(const Parameters& param) : param_(param)
+{}
 
-SLIC::~SLIC() {
+SLIC::~SLIC()
+{
     lab_.release();
     labels_.release();
     distance_.release();
     centers_.shrink_to_fit();
 }
 
-inline void SLIC::init(const cv::Mat& image) {
-
+inline void SLIC::init(const cv::Mat& image)
+{
     rows_ = image.rows;
     cols_ = image.cols;
 
@@ -116,8 +121,8 @@ inline void SLIC::init(const cv::Mat& image) {
     }
 }
 
-inline float SLIC::getDistance(ClusterCenter& center, int x, int y) const {
-
+inline float SLIC::getDistance(ClusterCenter& center, int x, int y) const
+{
     const cv::Vec3b p_color = lab_.ptr<cv::Vec3b>(y)[x];
     const int ldiff = center.l - p_color[0];
     const int adiff = center.a - p_color[1];
@@ -128,8 +133,8 @@ inline float SLIC::getDistance(ClusterCenter& center, int x, int y) const {
     return color_scale_norm_ * (ldiff * ldiff + adiff * adiff + bdiff * bdiff) + S_norm_ * (xdiff * xdiff + ydiff * ydiff);
 }
 
-inline void SLIC::updateCenters() {
-
+inline void SLIC::updateCenters()
+{
     std::vector<int> min_dist(num_superpixels_, INT_MAX);
 
     for (int y = 0; y != rows_; ++y) {
@@ -151,7 +156,8 @@ inline void SLIC::updateCenters() {
     }
 }
 
-inline int SLIC::iterate() {
+inline int SLIC::iterate()
+{
     int num_updated = 0;
     for (int center_num = 0; center_num != num_superpixels_; ++center_num) {
 
@@ -195,7 +201,8 @@ inline int SLIC::iterate() {
     return num_updated;
 }
 
-void SLIC::apply(const cv::Mat& image) {
+void SLIC::apply(const cv::Mat& image)
+{
     CV_Assert(image.type() == CV_8UC3);
     init(image);
 
@@ -203,8 +210,7 @@ void SLIC::apply(const cv::Mat& image) {
     while (itr++ != param_.iterate && iterate() != 0) {}
 }
 
-void SLIC::getLabels(cv::Mat& label_out) const {
+void SLIC::getLabels(cv::Mat& label_out) const
+{
     labels_.copyTo(label_out);
-}
-
 }

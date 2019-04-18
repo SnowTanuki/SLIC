@@ -5,8 +5,8 @@
 
 #include "slic.hpp"
 
-static cv::Mat1b createContourMask(const cv::Mat& labels) {
-
+static cv::Mat1b createContourMask(const cv::Mat& labels)
+{
     CV_Assert(labels.type() == CV_32S);
 
     const int rows = labels.rows;
@@ -28,8 +28,8 @@ static cv::Mat1b createContourMask(const cv::Mat& labels) {
     return dst;
 }
 
-static cv::Mat3b createSuperpixelImage(const cv::Mat& image, const cv::Mat& labels) {
-
+static cv::Mat3b createSuperpixelImage(const cv::Mat& image, const cv::Mat& labels)
+{
     CV_Assert(image.type() == CV_8UC3);
     CV_Assert(labels.type() == CV_32S);
     CV_Assert(image.size() == labels.size());
@@ -66,8 +66,8 @@ static cv::Mat3b createSuperpixelImage(const cv::Mat& image, const cv::Mat& labe
     return dst;
 }
 
-int main(int argc, char** argv) {
-
+int main(int argc, char** argv)
+{
     if (argc != 2) {
         std::cout << "Usage: ./slic.exe [image]" << std::endl;
         exit(EXIT_FAILURE);
@@ -80,12 +80,12 @@ int main(int argc, char** argv) {
     const float m = 20.f;
 
     // set SLIC parameters
-    superpixel::SLIC::Parameters param;
+    SLIC::Parameters param;
     param.superpixel_size = superpixel_size;
     param.iterate = 10;
     param.color_scale = m;
     // create SLIC
-    superpixel::SLIC slic(param);
+    SLIC slic(param);
 
     double time = 0;
     for (int i = 0; i <= 100; i++) {

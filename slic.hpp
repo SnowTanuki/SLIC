@@ -4,8 +4,6 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-namespace superpixel {
-
 class SLIC {
 
 public:
@@ -54,7 +52,5 @@ private:
     inline void updateCenters();
     inline int iterate();
 };
-
-}
 
 #endif
