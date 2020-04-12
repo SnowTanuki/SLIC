@@ -90,12 +90,11 @@ int main(int argc, char** argv)
     double time = 0;
     for (int i = 0; i <= 100; i++) {
         const auto t1 = std::chrono::system_clock::now();
-        // compute SLIC
+        // perform SLIC
         slic.apply(image);
         const auto t2 = std::chrono::system_clock::now();
         const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-        if (i > 0)
-            time += duration;
+        if (i > 0) time += duration;
     }
 
     std::printf("size: %d x %d\n", image.rows, image.cols);

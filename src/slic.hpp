@@ -7,6 +7,7 @@
 class SLIC {
 
 public:
+
     struct Parameters {
         int superpixel_size;
         int iterate;
@@ -20,6 +21,7 @@ public:
     void getLabels(cv::Mat& label_out) const;
 
 private:
+
     struct ClusterCenter {
         int x, y;
         int l, a, b;
