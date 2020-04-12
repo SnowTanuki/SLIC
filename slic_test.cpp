@@ -3,7 +3,7 @@
 #include <vector>
 #include <chrono>
 
-#include "slic.hpp"
+#include "src/slic.hpp"
 
 static cv::Mat1b createContourMask(const cv::Mat& labels)
 {
@@ -104,7 +104,7 @@ int main(int argc, char** argv)
     cv::Mat labels;
     slic.getLabels(labels);
 
-    //cv::imshow("Superpixel image", createSuperpixelImage(image, labels));
+    cv::imshow("Superpixel image", createSuperpixelImage(image, labels));
     image.setTo(cv::Scalar(0, 0, 255), createContourMask(labels));
     cv::imshow("Superpixel contour", image);
     cv::waitKey(0);

@@ -12,9 +12,10 @@ if (OpenCV_VERSION VERSION_LESS 3.0)
 	message(FATAL_ERROR "Error: OpenCV version requires at least 3.0")
 endif()
 
+file(GLOB srcs ./src/*.cpp)
+
 include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(../srcs)
 
-file(GLOB SRCS ./*.cpp ./*.hpp)
-
-add_executable(slic_test ${COMMON_SRCS} ${SRCS})
-target_link_libraries(slic_test ${OpenCV_LIBS})
+add_executable(slic slic_test.cpp ${srcs})
+target_link_libraries(slic ${OpenCV_LIBS})
