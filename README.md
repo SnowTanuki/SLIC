@@ -1,7 +1,7 @@
 # SLIC (Simple Linear Iterative Clustering)
 Fast and boundary followable method for computing Superpixels.
 
-## Reqirement
+## Requirement
 OpenCV 3.x<br>
 CMake 3.1 or later
 
