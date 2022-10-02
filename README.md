@@ -2,7 +2,8 @@
 Fast and boundary followable method for computing Superpixels.
 
 ## Requirement
-OpenCV 3.x
+- CMake
+- OpenCV 3.x
 
 ## How to build sample
 ```shell-session
