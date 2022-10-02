@@ -5,7 +5,7 @@
 /****************/
 /** Paremeters **/
 /****************/
-SLIC::Parameters::Parameters(int superpixel_size, int iterate, float color_scale) 
+SLIC::Parameters::Parameters(int superpixel_size, int iterate, float color_scale)
 : superpixel_size(superpixel_size), iterate(iterate), color_scale(color_scale)
 {
     if (this->superpixel_size <= 0) this->superpixel_size = 30;
@@ -82,7 +82,7 @@ inline void SLIC::init(const cv::Mat& image)
     }
 
     centers_tmp_ = std::vector<ClusterCenter>(num_superpixels_);
-    S_ = (int)std::ceilf(std::sqrtf(rows_ * cols_ / (float)num_superpixels_));
+    S_ = (int)std::ceil(std::sqrt(rows_ * cols_ / (float)num_superpixels_));
     S_norm_ = 1.0f / (S_ * S_);
     color_scale_norm_ = 1.0f / (param_.color_scale * param_.color_scale);
 

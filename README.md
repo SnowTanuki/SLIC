@@ -2,26 +2,26 @@
 Fast and boundary followable method for computing Superpixels.
 
 ## Requirement
-OpenCV 3.x<br>
-CMake 3.1 or later
+OpenCV 3.x
 
 ## How to use
-Clone this repository and move to directory "SLIC".
+1. Clone this repository and move to directory `slic`.
+2. Build sample.
 ```
 mkdir build
 cd build
 cmake ../
 make
 ```
-and execute with below statement
+3. Run.
 ```
-./slic_test.exe [image]
+./slic [image]
 ```
-for example
+for example,
 ```
-./slic_test.exe ../example/smoothie.png
+./slic ../example/smoothie.png
 ```
-![SLIC result](https://github.com/SnowTanuki/SLIC/blob/master/example/result.png)
+![SLIC result](https://github.com/yuyuyu-bot/SLIC/blob/master/example/result.png)
 
 ### Reference
 1. R. Achanta, A. Shaji, K. Smith, A. Lucchi, P. Fua, and S. Süsstrunk, "SLIC Superpixels", EPFL Technical Report no. 149300, June 2010.
