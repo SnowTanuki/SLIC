@@ -4,12 +4,10 @@ Fast and boundary followable method for computing Superpixels.
 ## Requirement
 OpenCV 3.x
 
-## How to use
-1. Clone this repository and move to directory `slic`.
-2. Build sample.
-```
-mkdir build
-cd build
+## How to build sample
+```shell-session
+mkdir sample/build
+cd sample/build
 cmake ../
 make
 ```
@@ -19,7 +17,7 @@ make
 ```
 for example,
 ```
-./slic ../example/smoothie.png
+./slic ../../example/smoothie.png
 ```
 ![SLIC result](https://github.com/yuyuyu-bot/SLIC/blob/master/example/result.png)
 
